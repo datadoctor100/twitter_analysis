@@ -8,7 +8,6 @@ Created on Mon Aug 22 14:30:07 2022
 
 # Import libraries
 import pandas as pd
-import os
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import SQLContext, SparkSession
 from pyspark.sql.types import StructType, StructField, DoubleType, IntegerType, StringType, ArrayType, FloatType
@@ -34,62 +33,15 @@ import datashader as ds
 import datashader.transfer_functions as tf
 from datashader.layout import random_layout, circular_layout, forceatlas2_layout
 from datashader.bundling import connect_edges, hammer_bundle
-import nlp
 from textblob import TextBlob
 import numpy as np
-from neo4j import GraphDatabase, basic_auth
+import os
+os.chdir('/home/dataguy/Documents/')
+from tweetology import establish_conn
 
 '''
     Get raw data
 '''
-
-# Class to instantiate a connection instance to neo4j
-class establish_conn:
-    
-    def __init__(self, uri, user, pwd):
-        
-        self.__uri = uri
-        self.__user = user
-        self.__pwd = pwd
-        self.__driver = None
-        
-        try:
-            
-            self.__driver = GraphDatabase.driver(self.__uri, auth=(self.__user, self.__pwd))
-            
-        except Exception as e:
-            
-            print("Failed to create the driver:", e)
-        
-    def close(self):
-        
-        if self.__driver is not None:
-            
-            self.__driver.close()
-        
-    def query(self, query, parameters = None, db = None):
-        
-        assert self.__driver is not None, "Driver not initialized!"
-        
-        session = None
-        response = None
-        
-        try: 
-            
-            session = self.__driver.session(database=db) if db is not None else self.__driver.session() 
-            response = list(session.run(query, parameters))
-        
-        except Exception as e:
-        
-            print("Query failed:", e)
-        
-        finally: 
-        
-            if session is not None:
-            
-                session.close()
-        
-        return response
 
 # Establish connection
 conn = establish_conn(uri = "bolt://44.204.227.162:7687", user = "neo4j", pwd = "discards-vices-stator")
